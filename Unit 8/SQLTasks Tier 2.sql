@@ -108,18 +108,17 @@ ORDER BY cost DESC
 
 /* Q9: This time, produce the same result as in Q8, but using a subquery. */
 
-/* produces error */
-SELECT f.name, CONCAT(m.firstname, ' ', m.surname) as name_of_booker, f.membercost as cost
-FROM Bookings as b
-INNER JOIN Facilities as f USING (facid)
-INNER JOIN Members as m USING (memid)
-WHERE b.starttime LIKE '2012-09-14%'
-AND f.membercost
-(SELECT
- CASE WHEN m.surname = 'GUEST' THEN (f.guestcost * b.slots)
-       ELSE (f.membercost * b.slots) END
- FROM Bookings as b
-) > 30
+SELECT *
+FROM
+	(SELECT f.name, CONCAT(m.firstname, ' ', m.surname) AS name_of_booker,
+     	   (CASE WHEN m.surname = 'GUEST' THEN (f.guestcost * b.slots)
+      			 ELSE (f.membercost * b.slots) END) AS cost
+   FROM Bookings AS b
+	 INNER JOIN Facilities AS f USING (facid)
+	 INNER JOIN Members AS m USING (memid)
+   WHERE b.starttime LIKE '2012-09-14%'
+  ) AS new
+WHERE cost > 30
 ORDER BY cost DESC
 
 /* PART 2: SQLite
